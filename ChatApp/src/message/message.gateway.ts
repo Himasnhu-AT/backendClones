@@ -41,5 +41,11 @@ export class MessageGateway {
   }
 
   @SubscribeMessage('typing')
-  typing() {}
+  typing(
+    @MessageBody('isTyping') isTypeing: boolean,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const name = this.messageService.getClientByName(client.id);
+    client.broadcast.emit('typing', { name, isTypeing });
+  }
 }
