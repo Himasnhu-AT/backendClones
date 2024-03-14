@@ -1,0 +1,12 @@
+{
+  "commands": [
+    {
+      "command": "yarn add @nestjs/websockets @nestjs/platform-socket.io",
+      "description": "install important dependencies"
+    },
+    {
+      "command": "nest g resource messages",
+      "description": "generate a new resource, select websockets"
+    }
+  ]
+}
