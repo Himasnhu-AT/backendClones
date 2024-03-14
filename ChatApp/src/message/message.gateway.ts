@@ -2,10 +2,12 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   MessageBody,
+  WebSocketServer,
 } from '@nestjs/websockets';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { Server } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
@@ -13,11 +15,15 @@ import { UpdateMessageDto } from './dto/update-message.dto';
   },
 })
 export class MessageGateway {
+  @WebSocketServer() server: Server;
+
   constructor(private readonly messageService: MessageService) {}
 
   @SubscribeMessage('createMessage')
-  create(@MessageBody() createMessageDto: CreateMessageDto) {
-    return this.messageService.create(createMessageDto);
+  async create(@MessageBody() createMessageDto: CreateMessageDto) {
+    const message = await this.messageService.create(createMessageDto);
+    this.server.emit('message', message);
+    return message;
   }
 
   @SubscribeMessage('findAllMessage')
@@ -25,18 +31,9 @@ export class MessageGateway {
     return this.messageService.findAll();
   }
 
-  @SubscribeMessage('findOneMessage')
-  findOne(@MessageBody() id: number) {
-    return this.messageService.findOne(id);
-  }
+  @SubscribeMessage('join')
+  joinRoom() {}
 
-  @SubscribeMessage('updateMessage')
-  update(@MessageBody() updateMessageDto: UpdateMessageDto) {
-    return this.messageService.update(updateMessageDto.id, updateMessageDto);
-  }
-
-  @SubscribeMessage('removeMessage')
-  remove(@MessageBody() id: number) {
-    return this.messageService.remove(id);
-  }
+  @SubscribeMessage('typing')
+  typing() {}
 }
